@@ -12,6 +12,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: horde
       MONGO_INITDB_ROOT_PASSWORD: dbPass123
     command: --quiet --logpath /dev/null
+    networks:
+      - horde
     ports:
       - 27017:27017
     volumes:
@@ -23,6 +25,8 @@ services:
     ports:
       - 30002:30002
     command: redis-server --save 60 1 --port 30002 --loglevel warning
+    networks:
+      - horde
     volumes:
       - redis:/data
 
@@ -46,6 +50,8 @@ services:
       # Mount Horde's data directory to ./data for easy viewing and modifying
       # Once server has started, this directory is populated with default configuration files from the container
       - ./data:/app/Data
+    networks:
+      - horde
 
 # Provide persistence between container restarts for MongoDB and Redis
 volumes:
@@ -53,3 +59,7 @@ volumes:
     driver: local
   redis:
     driver: local
+
+networks:
+  horde:
+    name: horde

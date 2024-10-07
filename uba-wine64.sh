@@ -3,7 +3,7 @@
 # Right now, this script is mostly called by remote execution tasks, which run UnrealBuildAccelerator (UBA)
 export WINEDEBUG=-all
 export WINEARCH=win64
-export WINEPREFIX=/opt/horde/wine-data
+export WINEPREFIX=/home/user/.wine
 
 # Overwrite UE_HORDE_SHARED_DIR to point to C:\ which will exist inside Wine.
 # This in turn is mounted under WINEPREFIX specified above

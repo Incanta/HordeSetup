@@ -15,15 +15,28 @@ RUN apt-get install -y unzip
 RUN apt-get install -y dotnet-sdk-6.0 dotnet-sdk-8.0
 RUN apt-get install -y --install-recommends winehq-stable
 RUN apt-get install -y jq
+RUN apt-get install -y net-tools
+RUN apt-get install -y xvfb
 
-# Set up wine
-RUN mkdir -p /opt/horde/wine-data
-RUN WINEPREFIX=/opt/horde/wine-data wineboot --init
+# Add the `user` user and provide permissions
+RUN adduser --gecos "" --disabled-password --home /home/user --uid 1001 user
+RUN usermod -aG sudo user
+RUN chown -R user:user /home/user
+
+RUN mkdir -p /app
+
+RUN chown -R user:user /app
+
 COPY uba-wine64.sh /usr/bin/uba-wine64.sh
 RUN chmod +x /usr/bin/uba-wine64.sh
 
+COPY startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
+# Switch to the non-root user
+USER user
+
 # Horde Agent
-RUN mkdir /app
 RUN wget ${HORDE_SERVER_URL}/api/v1/agentsoftware/default/zip -O /app/HordeAgent.zip
 RUN unzip -o /app/HordeAgent.zip -d /app
 WORKDIR /app
@@ -31,4 +44,4 @@ RUN HORDE_SERVER_TOKEN=$(wget -qO- ${HORDE_SERVER_URL}/api/v1/admin/registration
 RUN dotnet HordeAgent.dll SetServer -Name=HordeServer -Url=${HORDE_SERVER_URL} -Default -Token=${HORDE_SERVER_TOKEN}
 RUN jq '.Horde.wineExecutablePath = "/usr/bin/uba-wine64.sh"' appsettings.json > appsettings.json.tmp && mv appsettings.json.tmp appsettings.json
 
-ENTRYPOINT [ "dotnet", "HordeAgent.dll" ]
+ENTRYPOINT [ "/app/startup.sh" ]
