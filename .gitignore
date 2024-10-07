@@ -1,0 +1,9 @@
+Intermediate
+Binaries
+DerivedDataCache
+.vs
+*.sln
+.vscode
+*.code-workspace
+data
+.ignore

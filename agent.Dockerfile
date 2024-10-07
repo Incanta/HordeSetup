@@ -1,19 +1,24 @@
 FROM ubuntu:22.04
 
-ARG HORDE_SERVER_URL="http://127.0.0.1:13340"
+ARG HORDE_SERVER_URL="http://10.0.0.10:13340"
 
 # Dependencies
+RUN apt-get update
+RUN apt-get install -y wget
 RUN dpkg --add-architecture i386
+RUN mkdir -pm755 /etc/apt/keyrings
+RUN wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
 RUN wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
 RUN apt-get update
+RUN apt-get install -y wget
 RUN apt-get install -y unzip
-RUN apt-get install -y dotnet-sdk-8.0
+RUN apt-get install -y dotnet-sdk-6.0 dotnet-sdk-8.0
 RUN apt-get install -y --install-recommends winehq-stable
 RUN apt-get install -y jq
 
 # Set up wine
 RUN mkdir -p /opt/horde/wine-data
-RUN WINEPREFIX=/opt/horde/wine-data wineboot --init --quiet
+RUN WINEPREFIX=/opt/horde/wine-data wineboot --init
 COPY uba-wine64.sh /usr/bin/uba-wine64.sh
 RUN chmod +x /usr/bin/uba-wine64.sh
 
